@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "MyVault",
+  "short_name": "MyVault",
+  "version": "1.0.0",
+  "description": "Private, local-first, end-to-end encrypted password manager. Nothing leaves your device.",
+  "minimum_chrome_version": "120",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAidLOi1OAk5WFT+nLa/kvRh6/bJnKlqKFpMzWcYKs2wZq18+tHBj5KWgF2mk9wtBcBFr9Pxh0WLerd8MSRhBakxv0Y5HKSao+DIN50ldKa4UdbFo/YAdrOE2B4wFzytShgp8FlMEDsiypMYnxlm8xaJiFTYZIzz5HJrFF9asqLl/AMY+XvB8aY0VzslRZZJIPjRRr5sTT/9zCtlJtNRkkae+Irge6243+qwMLTpzaciuVg5iD3UfkT0wQLmMUINeuQjaelQ45gZ7xtgX1+g7E/7l9jiUp8rSSuw8hWGcvu+9PnOKAkJiq1VuFepi7fKMmiYnicQjtWpIEvWT8n7aYdQIDAQAB",
+  "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
+  "action": {
+    "default_title": "MyVault",
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png" }
+  },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["activeTab", "scripting", "storage", "unlimitedStorage", "alarms", "idle", "offscreen", "clipboardWrite"],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Ctrl+Shift+L", "mac": "Command+Shift+L" },
+      "description": "Open MyVault"
+    }
+  },
+  "content_security_policy": { "extension_pages": "__CSP__" },
+  "incognito": "not_allowed"
+}

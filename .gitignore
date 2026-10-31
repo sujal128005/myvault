@@ -1,0 +1,10 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+*.zip
+*.myvault
+*.csv
+!tests/fixtures/*.csv
+.DS_Store
+release/
