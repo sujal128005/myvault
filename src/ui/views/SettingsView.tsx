@@ -10,7 +10,7 @@ import { useStrength, useTheme, type ThemePref } from '../hooks';
 import { usePlatform } from '../platform';
 import { useVault, useVaultData } from '../state';
 import { useToast } from '../toast';
-import { downloadText, errorMessage, formatDate, pickFile, pickFiles, relativeTime } from '../util';
+import { BACKUP_ACCEPT, CSV_ACCEPT, downloadText, errorMessage, formatDate, pickFile, pickFiles, readTextFile, relativeTime } from '../util';
 import { RestoreBackupModal } from './AuthViews';
 
 type Dialog = null | 'export' | 'import' | 'csv' | 'password' | 'snapshots' | 'delete' | 'replace' | 'emptyTrash';
@@ -345,8 +345,14 @@ function ImportBackupDialog({ onClose }: { onClose: () => void }) {
             type="button"
             className="btn btn-secondary btn-block"
             onClick={async () => {
-              const f = await pickFile('.myvault,application/json');
-              if (f) setFile({ name: f.name, text: await f.text() });
+              const f = await pickFile(BACKUP_ACCEPT);
+              if (!f) return;
+              try {
+                setFile({ name: f.name, text: await readTextFile(f) });
+                setErr('');
+              } catch (ex) {
+                setErr(errorMessage(ex));
+              }
             }}
           >
             <Upload /> {file ? file.name : 'Choose backup file…'}
@@ -399,11 +405,11 @@ function CsvImportDialog({ onClose }: { onClose: () => void }) {
           className="btn btn-secondary btn-block"
           onClick={async () => {
             setErr('');
-            const picked = await pickFiles('.csv,text/csv');
+            const picked = await pickFiles(CSV_ACCEPT);
             if (!picked.length) return;
             setFiles(picked.map((f) => f.name));
             try {
-              const texts = await Promise.all(picked.map((f) => f.text()));
+              const texts = await Promise.all(picked.map(readTextFile));
               setPreview(dedupeCsvImport(data.items, importCsvFiles(texts)));
             } catch (e) {
               setPreview(null);

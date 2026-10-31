@@ -182,6 +182,20 @@ test.describe('Website', () => {
   });
 });
 
+test('backup picker works on phones (no file-type filter) and rejects non-backup files clearly', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Restore from a backup' }).click();
+  const chooserP = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Choose backup file…' }).click();
+  const chooser = await chooserP;
+  // Mobile pickers grey out unknown types like .myvault when an accept filter is set.
+  expect(await chooser.element().getAttribute('accept')).toBeNull();
+  await chooser.setFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') });
+  await page.getByLabel('Backup master password', { exact: true }).fill('whatever password');
+  await page.getByRole('dialog').getByRole('button', { name: 'Restore' }).click();
+  await expect(page.getByText('This is not a valid MyVault backup file')).toBeVisible();
+});
+
 test.describe('Website security', () => {
   test('strict CSP blocks network access and the app makes no third-party requests', async ({ page, baseURL }) => {
     const requests: string[] = [];

@@ -6,7 +6,7 @@ import { ConfirmDialog, Modal, SecretInput, Spinner, StrengthMeter } from '../co
 import { useStrength } from '../hooks';
 import { usePlatform } from '../platform';
 import { useVault } from '../state';
-import { errorMessage, pickFile } from '../util';
+import { BACKUP_ACCEPT, errorMessage, pickFile, readTextFile } from '../util';
 
 export function AppIcon({ size }: { size?: 'sm' }) {
   return (
@@ -307,8 +307,14 @@ export function RestoreBackupModal({ onClose, replacing }: { onClose: () => void
             type="button"
             className="btn btn-secondary btn-block"
             onClick={async () => {
-              const f = await pickFile('.myvault,application/json');
-              if (f) setFile({ name: f.name, text: await f.text() });
+              const f = await pickFile(BACKUP_ACCEPT);
+              if (!f) return;
+              try {
+                setFile({ name: f.name, text: await readTextFile(f) });
+                setErr('');
+              } catch (ex) {
+                setErr(errorMessage(ex));
+              }
             }}
           >
             <Upload /> {file ? file.name : 'Choose backup file…'}

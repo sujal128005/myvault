@@ -76,11 +76,26 @@ export function downloadText(filename: string, text: string, mime = 'application
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+/**
+ * Backup files are picked WITHOUT an `accept` filter: phone file pickers don't know the
+ * .myvault type and grey such files out. Contents are validated after reading instead.
+ */
+export const BACKUP_ACCEPT = '';
+/** Phones report CSV files under several MIME types. */
+export const CSV_ACCEPT = '.csv,text/csv,text/comma-separated-values,application/csv,application/vnd.ms-excel,text/plain';
+const MAX_IMPORT_BYTES = 50 * 1024 * 1024;
+
+/** Read a picked file as text, refusing absurdly large files before loading them. */
+export async function readTextFile(f: File): Promise<string> {
+  if (f.size > MAX_IMPORT_BYTES) throw new Error(`${f.name} is too large to be a MyVault backup or CSV export`);
+  return f.text();
+}
+
 export function pickFiles(accept: string): Promise<File[]> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = accept;
+    if (accept) input.accept = accept;
     input.multiple = true;
     input.onchange = () => resolve(input.files ? [...input.files] : []);
     input.addEventListener('cancel', () => resolve([]));
@@ -92,7 +107,7 @@ export function pickFile(accept: string): Promise<File | null> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = accept;
+    if (accept) input.accept = accept;
     input.onchange = () => resolve(input.files?.[0] ?? null);
     input.addEventListener('cancel', () => resolve(null));
     input.click();
